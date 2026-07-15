@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AI Chat & Gambar — AI Studio</title>
+<link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+<nav class="nav">
+  <div class="brand"><span class="dot"></span> AI Studio</div>
+  <div class="nav-links">
+    <a href="index.html">Beranda</a>
+    <a href="chat.html" class="active">AI Chat</a>
+    <a href="quote.html">Quote Studio</a>
+  </div>
+</nav>
+
+<header class="hero container">
+  <h1>Asisten AI & Generator Gambar</h1>
+  <p>Ajukan pertanyaan ke model bahasa, atau deskripsikan sebuah gambar untuk dihasilkan secara otomatis.</p>
+</header>
+
+<main class="container">
+  <section class="section">
+    <div class="card">
+      <span class="badge">Prompt</span>
+      <label for="prompt">Apa yang ingin kamu buat?</label>
+      <textarea id="prompt" rows="4" placeholder="Contoh: Jelaskan konsep black hole secara sederhana, atau 'kucing astronot di luar angkasa, gaya lukisan cat minyak'"></textarea>
+      <div class="row">
+        <button class="btn btn-primary" id="btnChat" onclick="runChat()">Tanya AI</button>
+        <button class="btn btn-secondary" id="btnImg" onclick="runImage()">Buat Gambar</button>
+      </div>
+      <div class="status" id="status">Masukkan prompt, lalu pilih salah satu aksi di atas.</div>
+    </div>
+
+    <div class="card result" id="chatCard">
+      <span class="badge">Balasan</span>
+      <div class="quote-text" id="chatOut"></div>
+    </div>
+
+    <div class="card result" id="imgCard">
+      <span class="badge">Hasil Gambar</span>
+      <div class="result" id="imgWrap"><img id="imgOut" alt="Gambar yang dihasilkan"/></div>
+      <div class="row">
+        <button class="btn btn-secondary" onclick="saveImage()">Simpan Gambar</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer container">
+  Dibangun dengan <a href="https://developer.puter.com" target="_blank" rel="noopener">Puter.js</a> · Powered by Puter
+</footer>
+
+<script src="https://js.puter.com/v2/"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  let lastImageUrl = null;
+  const setStatus = (m, isErr=false) => { const s=$('status'); s.textContent=m; s.className='status'+(isErr?' error':''); };
+
+  async function runChat(){
+    const p = $('prompt').value.trim();
+    if(!p){ setStatus('Silakan tulis prompt terlebih dahulu.', true); return; }
+    $('btnChat').disabled=true; setStatus('Memproses permintaan…');
+    try{
+      const reply = await puter.ai.chat(p);
+      $('chatCard').classList.add('show');
+      $('chatOut').textContent = reply;
+      setStatus('Selesai.');
+    }catch(e){ setStatus('Terjadi kesalahan: '+(e?.message||e), true); }
+    finally{ $('btnChat').disabled=false; }
+  }
+
+  async function runImage(){
+    const p = $('prompt').value.trim();
+    if(!p){ setStatus('Silakan tulis prompt terlebih dahulu.', true); return; }
+    $('btnImg').disabled=true; setStatus('Menghasilkan gambar… (beberapa detik)');
+    try{
+      const url = await puter.ai.txt2img(p);
+      lastImageUrl = url;
+      $('imgCard').classList.add('show');
+      $('imgWrap').classList.add('show');
+      $('imgOut').src = url;
+      setStatus('Gambar berhasil dibuat.');
+    }catch(e){ setStatus('Terjadi kesalahan: '+(e?.message||e), true); }
+    finally{ $('btnImg').disabled=false; }
+  }
+
+  function saveImage(){
+    if(!lastImageUrl) return;
+    const a=document.createElement('a'); a.href=lastImageUrl; a.download='ai-image.png'; a.click();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Quote Studio — AI Studio</title>
+<link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+<nav class="nav">
+  <div class="brand"><span class="dot"></span> AI Studio</div>
+  <div class="nav-links">
+    <a href="index.html">Beranda</a>
+    <a href="chat.html">AI Chat</a>
+    <a href="quote.html" class="active">Quote Studio</a>
+  </div>
+</nav>
+
+<header class="hero container">
+  <h1>Quote Studio</h1>
+  <p>Masukkan satu topik. AI menyusun quote, menyiapkan latar gambar, lalu membacakan lewat voice-over — siap dijadikan video quote.</p>
+</header>
+
+<main class="container">
+  <section class="section">
+    <div class="card">
+      <span class="badge">Langkah 1 — Topik</span>
+      <label for="topic">Topik atau tema</label>
+      <input type="text" id="topic" placeholder="Misal: motivasi kerja, cinta, stoicisme, fokus"/>
+      <div class="row">
+        <button class="btn btn-primary" id="btnGen" onclick="generate()">Buat Quote & Aset</button>
+      </div>
+      <div class="steps">
+        <div class="step" id="s1">1 · Menulis quote</div>
+        <div class="step" id="s2">2 · Membuat latar</div>
+        <div class="step" id="s3">3 · Voice-over</div>
+      </div>
+      <div class="status" id="status">Isi topik, lalu klik “Buat Quote & Aset”.</div>
+    </div>
+
+    <div class="card result" id="quoteCard">
+      <span class="badge">Quote</span>
+      <div class="quote-text" id="quoteOut"></div>
+    </div>
+
+    <div class="card result" id="assetCard">
+      <span class="badge">Preview Kartu Video</span>
+      <div class="quote-card">
+        <img id="bgOut" alt="Latar"/>
+        <div class="scrim"></div>
+        <div class="qtext" id="qOverlay"></div>
+      </div>
+      <div class="row">
+        <button class="btn btn-secondary" id="btnPlay" onclick="playVoice()">▶ Putar Voice-over</button>
+        <button class="btn btn-secondary" onclick="saveImage2()">Simpan Latar</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer container">
+  Dibangun dengan <a href="https://developer.puter.com" target="_blank" rel="noopener">Puter.js</a> · Powered by Puter
+</footer>
+
+<script src="https://js.puter.com/v2/"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  let bgUrl=null, voiceText=null;
+  const setStatus=(m,e=false)=>{const s=$('status');s.textContent=m;s.className='status'+(e?' error':'');};
+  const mark=(id,state)=>{const el=$(id);el.className='step'+(state==='active'?' active':state==='done'?' done':'');};
+
+  async function generate(){
+    const topic=$('topic').value.trim();
+    if(!topic){ setStatus('Silakan tulis topik terlebih dahulu.', true); return; }
+    $('btnGen').disabled=true;
+    try{
+      // Step 1: quote
+      mark('s1','active'); setStatus('Menulis quote…');
+      const chat = await puter.ai.chat(
+        `Buat SATU quote pendek (maksimal 18 kata) tentang "${topic}". `+
+        `Gaya padat dan menggugah. Balas HANYA quote-nya, tanpa tanda kutip atau penjelasan.`);
+      voiceText = chat.trim().replace(/^["']|["']$/g,'');
+      $('quoteCard').classList.add('show');
+      $('quoteOut').textContent = voiceText;
+      $('qOverlay').textContent = voiceText;
+      mark('s1','done');
+
+      // Step 2: background image
+      mark('s2','active'); setStatus('Membuat latar gambar…');
+      const imgPrompt =
+        `Cinematic abstract background, atmospheric, soft bokeh light, moody color grading, `+
+        `minimalist, no text, no people, theme: ${topic}`;
+      bgUrl = await puter.ai.txt2img(imgPrompt);
+      $('bgOut').src = bgUrl;
+      $('assetCard').classList.add('show');
+      mark('s2','done');
+
+      // Step 3: TTS voice-over
+      mark('s3','active'); setStatus('Menyiapkan voice-over…');
+      const audio = await puter.ai.txt2speech(voiceText, {
+        provider:'openai', model:'gpt-4o-mini-tts', voice:'alloy',
+        response_format:'mp3', instructions:'Bacakan dengan tenang, jeda natural, sedikit dramatis.'
+      });
+      window._voiceAudio = audio;
+      mark('s3','done');
+      setStatus('Selesai. Klik “Putar Voice-over” untuk mendengar.');
+    }catch(e){
+      setStatus('Terjadi kesalahan: '+(e?.message||e), true);
+    }finally{
+      $('btnGen').disabled=false;
+    }
+  }
+
+  function playVoice(){ if(window._voiceAudio) window._voiceAudio.play(); }
+
+  function saveImage2(){
+    if(!bgUrl) return;
+    const a=document.createElement('a'); a.href=bgUrl; a.download='quote-background.png'; a.click();
+  }
+</script>
+</body>
+</html>
