@@ -66,6 +66,18 @@
 <script>
   const $ = id => document.getElementById(id);
   let bgUrl=null, voiceText=null;
+
+  // Helper: ekstrak teks dari hasil puter.ai.chat() (ChatResponse v2)
+  function chatText(r){
+    if (typeof r === 'string') return r;
+    const c = r?.message?.content ?? r?.content;
+    if (typeof c === 'string') return c;
+    if (Array.isArray(c)) return c.map(x => typeof x === 'string' ? x : (x?.text ?? '')).join('');
+    if (typeof r?.text === 'string') return r.text;
+    if (typeof r?.message?.text === 'string') return r.message.text;
+    return String(r ?? '');
+  }
+
   const setStatus=(m,e=false)=>{const s=$('status');s.textContent=m;s.className='status'+(e?' error':'');};
   const mark=(id,state)=>{const el=$(id);el.className='step'+(state==='active'?' active':state==='done'?' done':'');};
 
@@ -79,7 +91,7 @@
       const chat = await puter.ai.chat(
         `Buat SATU quote pendek (maksimal 18 kata) tentang "${topic}". `+
         `Gaya padat dan menggugah. Balas HANYA quote-nya, tanpa tanda kutip atau penjelasan.`);
-      voiceText = chat.trim().replace(/^["']|["']$/g,'');
+      voiceText = chatText(chat).trim().replace(/^["']|["']$/g,'');
       $('quoteCard').classList.add('show');
       $('quoteOut').textContent = voiceText;
       $('qOverlay').textContent = voiceText;
