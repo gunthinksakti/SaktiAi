@@ -8,6 +8,9 @@ on:
       - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write   # dibutuhkan untuk membuat release
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,11 +39,22 @@ jobs:
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
-      - name: Build APK (release)
+      - name: Build APK (release, per-ABI)
         run: flutter build apk --release --split-per-abi
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+      - name: Prepare artifacts
+        run: |
+          mkdir -p ../dist
+          cp build/app/outputs/flutter-apk/*.apk ../dist/
+          ls -la ../dist/
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
         with:
-          name: sakti-ai-apk
-          path: app/build/app/outputs/flutter-apk/*.apk
+          tag_name: continuous
+          name: Continuous Build
+          prerelease: true
+          body: |
+            Auto-build APK terbaru dari branch `master`.
+            Diperbarui otomatis oleh GitHub Actions.
+          files: dist/*.apk
