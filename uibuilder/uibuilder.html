@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Material IDE Inline Actions - Level 4 PRO</title>
+    <script src="ds:/Sys/app.js"></script>
+
+    <style>
+        /* ============================================================
+               MATERIAL DESIGN SYSTEM (DARK THEME MOBILE-FIRST)
+            ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --md-primary: #a8bfff;
+            --md-primary-container: #254376;
+            --md-surface: #121318;
+            --md-surface-container: #1a1c22;
+            --md-surface-container-high: #24262d;
+            --md-on-surface: #e2e2e9;
+            --md-on-surface-variant: #c5c6d0;
+            --md-outline: #8f9099;
+            --md-error: #ffb4ab;
+            --md-success: #a8ffb2;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+            background: var(--md-surface);
+            color: var(--md-on-surface);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* TOP APP BAR */
+        #top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            height: 56px;
+            background: var(--md-surface-container);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            z-index: 10;
+        }
+        #top-bar .title { font-size: 18px; font-weight: 500; color: var(--md-primary); }
+        #top-bar .actions { display: flex; gap: 4px; }
+        #top-bar button {
+            background: transparent; border: none; color: var(--md-on-surface); font-size: 18px;
+            cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+        }
+        #top-bar button:active { background: rgba(255, 255, 255, 0.1); }
+
+        /* CANVAS AREA WRAPPER */
+        #canvas-wrap {
+            flex: 1; padding: 16px; background: #0d0e11; overflow: auto;
+            display: flex; align-items: flex-start; justify-content: center; padding-bottom: 120px;
+        }
+        #canvas {
+            width: 100%; max-width: 360px; min-height: 580px;
+            background: #ffffff; border-radius: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.6); position: relative; transition: 0.2s;
+        }
+        #canvas.grid-on {
+            background-image: radial-gradient(circle, #ccd0dc 1px, transparent 1px); background-size: 10px 10px;
+        }
+        .canvas-placeholder {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #a4a8b5; text-align: center; pointer-events: none; font-size: 13px; width: 80%;
+        }
+
+        /* EXPANDABLE FAB SPEED DIAL */
+        .fab-menu-container {
+            position: absolute; bottom: 96px; right: 16px;
+            display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 999;
+        }
+        .fab-trigger {
+            width: 56px; height: 56px; background: var(--md-primary-container); color: var(--md-primary);
+            border: none; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .fab-menu-container.open .fab-trigger { transform: rotate(45deg); background: var(--md-error); color: #121318; }
+        .fab-child-list { display: flex; flex-direction: column; align-items: center; gap: 10px; max-height: 0; opacity: 0; pointer-events: none; transition: max-height 0.3s ease, opacity 0.2s ease; }
+        .fab-menu-container.open .fab-child-list { max-height: 400px; opacity: 1; pointer-events: auto; }
+        .fab-child-item { display: flex; align-items: center; gap: 8px; position: relative; }
+        .fab-child { width: 44px; height: 44px; background: var(--md-surface-container-high); color: var(--md-on-surface); border: 1px solid rgba(255,255,255,0.08); border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .fab-label { background: rgba(0, 0, 0, 0.8); color: white; font-size: 11px; padding: 4px 8px; border-radius: 6px; white-space: nowrap; position: absolute; right: 54px; pointer-events: none; opacity: 0; transition: opacity 0.15s; }
+        .fab-menu-container.open .fab-label { opacity: 1; }
+
+        /* BOTTOM NAVIGATION BAR */
+        #bottom-nav {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
+            background: var(--md-surface-container-high); display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05); z-index: 100;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            color: var(--md-on-surface-variant); font-size: 11px; cursor: pointer; background: transparent; border: none; width: 64px;
+        }
+        .nav-item .icon-wrapper { width: 64px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 18px; }
+        .nav-item.active .icon-wrapper { background: var(--md-primary-container); color: var(--md-primary); }
+
+        /* BOTTOM SHEET COMPONENTS */
+        .bottom-sheet {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 60vh;
+            background: var(--md-surface-container-high); border-radius: 28px 28px 0 0; box-shadow: 0 -8px 32px rgba(0,0,0,0.6);
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1); z-index: 200;
+            display: flex; flex-direction: column; padding: 16px;
+        }
+        .bottom-sheet.open { transform: translateY(0); }
+        .bottom-sheet .drag-handle { width: 32px; height: 4px; background: var(--md-outline); border-radius: 2px; align-self: center; margin-bottom: 16px; opacity: 0.4; }
+        .bottom-sheet h3 { font-size: 15px; margin-bottom: 16px; color: var(--md-primary); }
+        .sheet-content { flex: 1; overflow-y: auto; padding-bottom: 24px; }
+
+        /* EDITOR FORM FIELDS */
+        .prop-group { margin-bottom: 12px; }
+        .prop-group label { display: block; font-size: 11px; color: var(--md-primary); margin-bottom: 4px; }
+        .prop-group input, .prop-group select, .prop-group textarea {
+            width: 100%; background: var(--md-surface); border: 1px solid var(--md-outline); color: var(--md-on-surface); padding: 10px; border-radius: 8px; font-size: 13px;
+        }
+        .row { display: flex; gap: 8px; }
+        .btn-action { background: var(--md-primary-container); color: white; border: none; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; margin-top: 4px; }
+
+        /* OBJECTS MARKUP IN CANVAS */
+        .cmp {
+            position: absolute; padding: 10px 14px; border-radius: 12px; border: 2px solid transparent; background: #f1f3f9; color: #121318; min-height: 36px; font-size: 14px;
+        }
+        .cmp.selected { border-color: #5c5cf0 !important; box-shadow: 0 0 0 4px rgba(92, 92, 240, 0.15); }
+        
+        .cmp .cmp-label { position: absolute; top: -10px; left: 8px; font-size: 8px; background: #5c5cf0; color: white; padding: 1px 4px; border-radius: 3px; pointer-events: none; }
+        
+        /* ACTION WRAPPER ATAS KOMPONEN */
+        .cmp .cmp-actions-group {
+            position: absolute; top: -14px; right: -8px; display: flex; gap: 4px; z-index: 10; opacity: 0; transition: opacity 0.15s; pointer-events: none;
+        }
+        .cmp.selected .cmp-actions-group { opacity: 1; pointer-events: auto; }
+        
+        .cmp-btn-inline {
+            width: 24px; height: 24px; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer;
+        }
+        .cmp-btn-inline.btn-delete { background: #c04a5a; }
+        .cmp-btn-inline.btn-prop { background: #2a6acd; }
+
+        .cmp-button { background: #5c5cf0; color: white; font-weight: 600; text-align: center; border-radius: 8px; }
+        .cmp-input { background: white; border: 2px solid #ccd; }
+        .cmp-container { background: #eaedf5; border: 2px dashed #b8b8dd; min-height: 80px; width: 200px; }
+        .flex-layout { display: flex !important; }
+        .cmp-container.flex-layout .cmp { position: relative !important; left: auto !important; top: auto !important; margin-bottom: 6px; }
+        .cmp-image { background: #eef; border: 2px solid #ccd; text-align: center; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+        .cmp-image img { max-width: 100%; max-height: 100px; border-radius: 6px; }
+
+        /* BACKDROP & OVERLAYS */
+        .sheet-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 150; display: none; }
+        .sheet-backdrop.active { display: block; }
+
+        #preview-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--md-surface); z-index: 1000; display: none; flex-direction: column; }
+        #preview-overlay.active { display: flex; }
+        .preview-content { flex: 1; background: #fff; position: relative; padding: 16px; color: #000; }
+
+        #code-drawer { position: absolute; bottom: 80px; left: 0; width: 100%; background: #121212; border-top: 2px solid var(--md-primary); z-index: 120; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        #code-drawer.open { max-height: 250px; }
+        #code-drawer pre { padding: 16px; color: var(--md-success); font-family: monospace; font-size: 11px; overflow: auto; max-height: 240px; }
+
+        /* Variable List Styling */
+        .var-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+        .var-row input { flex: 1; padding: 6px; background: var(--md-surface); border: 1px solid var(--md-outline); color: white; border-radius: 4px; font-size: 12px; }
+        .btn-del-var { background: var(--md-error); color: #121318; border: none; width: 28px; height: 28px; border-radius: 4px; font-weight: bold; }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <!-- TOP APP NAVIGATION -->
+        <div id="top-bar">
+            <div class="title">IDE Low-Code Pro</div>
+            <div class="actions">
+                <button onclick="undoAction()">↩</button>
+                <button onclick="redoAction()">↪</button>
+                <button onclick="toggleGrid()">▦</button>
+                <button onclick="toggleCodeDrawer()">📄</button>
+                <button onclick="togglePreview()" style="color: var(--md-primary)">👁 RUN</button>
+            </div>
+        </div>
+
+        <!-- MAIN KANVAS WORKSPACE -->
+        <div id="canvas-wrap">
+            <div id="canvas" class="grid-on">
+                <div class="canvas-placeholder" id="placeholder">
+                    Kanvas Kosong.<br>Ketuk + untuk tambah komponen. Tombol ⚙️ properti kini menempel langsung di setiap objek terpilih!
+                </div>
+            </div>
+        </div>
+
+        <!-- CODE GENERATOR INTERACTION DRAWER -->
+        <div id="code-drawer">
+            <pre id="codeContent">// Kode HTML + Logika Produksi Level 4 siap diekspor...</pre>
+        </div>
+
+        <!-- EXPANDABLE FAB SPEED DIAL MENU -->
+        <div class="fab-menu-container" id="speedDialMenu">
+            <div class="fab-child-list">
+                <div class="fab-child-item"><span class="fab-label">Teks Deskripsi</span><button class="fab-child" onclick="addElement('text')">📝</button></div>
+                <div class="fab-child-item"><span class="fab-label">Tombol Utama</span><button class="fab-child" onclick="addElement('button')">🔘</button></div>
+                <div class="fab-child-item"><span class="fab-label">Kotak Input</span><button class="fab-child" onclick="addElement('input')">✏️</button></div>
+                <div class="fab-child-item"><span class="fab-label">Box Container</span><button class="fab-child" onclick="addElement('container')">📦</button></div>
+                <div class="fab-child-item"><span class="fab-label">Gambar</span><button class="fab-child" onclick="addElement('image')">🖼️</button></div>
+            </div>
+            <button class="fab-trigger" onclick="toggleSpeedDial()">+</button>
+        </div>
+
+        <!-- NAVIGATION ACTIONSBAR -->
+        <div id="bottom-nav">
+            <button class="nav-item active" onclick="switchTab(this)">
+                <div class="icon-wrapper">📐</div><span>Kanvas</span>
+            </button>
+            <button class="nav-item" onclick="openSheet('layerSheet')">
+                <div class="icon-wrapper">📑</div><span>Layer</span>
+            </button>
+            <button class="nav-item" onclick="openSheet('propSheet')">
+                <div class="icon-wrapper">⚙️</div><span>Properti</span>
+            </button>
+            <button class="nav-item" onclick="openSheet('projectSheet')">
+                <div class="icon-wrapper">💾</div><span>Proyek & State</span>
+            </button>
+        </div>
+
+        <div class="sheet-backdrop" id="backdrop" onclick="closeAllSheets()"></div>
+
+        <!-- SHEET: LAYER LIST -->
+        <div class="bottom-sheet" id="layerSheet">
+            <div class="drag-handle"></div>
+            <h3>📑 Daftar Objek & Layer</h3>
+            <div class="sheet-content" id="layerList"></div>
+        </div>
+
+        <!-- SHEET: INSPEKTUR PROPERTI -->
+        <div class="bottom-sheet" id="propSheet">
+            <div class="drag-handle"></div>
+            <h3>⚙️ Inspektur Properti & Logika</h3>
+            <div class="sheet-content" id="propContent">
+                <div style="text-align:center; padding:20px; color:var(--md-outline)">Pilih elemen di kanvas terlebih dahulu.</div>
+            </div>
+        </div>
+
+        <!-- SHEET: ADVANCED PROJECT STATE & FILE MANAGER -->
+        <div class="bottom-sheet" id="projectSheet">
+            <div class="drag-handle"></div>
+            <h3>💾 Manajemen State Global Variabel & File</h3>
+            <div class="sheet-content">
+                <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+                    <label style="color: var(--md-primary); font-size: 12px; font-weight: bold; display: block; margin-bottom: 8px;">🔢 Manajemen State Lokal (Data Binding)</label>
+                    <div id="variable-list-container"></div>
+                    <button class="btn-action" style="width: 100%; font-weight: bold;" onclick="addNewStateVariable()">+ Tambah Variabel Global</button>
+                </div>
+                <div class="prop-group">
+                    <button onclick="exportProjectJSON()" style="background:var(--md-primary-container); color:white; padding:12px; border:none; border-radius:8px; width:100%; margin-bottom:10px;">💾 Unduh File Proyek (.JSON)</button>
+                    <button onclick="triggerImport()" style="background:#3a3a5a; color:white; padding:12px; border:none; border-radius:8px; width:100%; margin-bottom:10px;">📂 Muat Berkas (.JSON)</button>
+                    <button onclick="generatePureHTMLCode()" style="background:#2a8a5a; color:white; padding:12px; border:none; border-radius:8px; width:100%;">📋 Salin Kode Bersih HTML/JS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREVIEW OVERLAY SCREEN INTERACTIVE RUNTIME -->
+    <div id="preview-overlay">
+        <div id="top-bar" style="background:#fff; border-bottom:1px solid #ddd;">
+            <div class="title" style="color:#000;">Simulasi Runtime Aplikasi Aktif</div>
+            <button onclick="closePreview()" style="color:#000; font-weight: bold;">✕ KELUAR</button>
+        </div>
+        <div class="preview-content" id="previewContent"></div>
+    </div>
+
+    <input type="file" id="fileLoader" accept=".json" style="display:none" onchange="handleFileImport(event)" />
+
+    <!-- ============================================================
+    IDE ENGINE CORE CODE ARCHITECTURE (INLINE PROPERTY BUTTON UPDATE)
+    ============================================================ -->
+    <script>
+        let components = [];
+        let selectedId = null;
+        let idCounter = 0;
+        const GRID_SIZE = 10;
+        let isPreviewMode = false;
+        
+        let appVariables = { counter: 0, namaUser: "Budi Santoso" };
+        let runtimeState = {};
+        let history = [];
+        let historyIndex = -1;
+
+        const canvas = document.getElementById('canvas');
+        const placeholder = document.getElementById('placeholder');
+        const backdrop = document.getElementById('backdrop');
+        const propContent = document.getElementById('propContent');
+        const layerList = document.getElementById('layerList');
+        const previewOverlay = document.getElementById('preview-overlay');
+        const previewContent = document.getElementById('previewContent');
+        const codeContent = document.getElementById('codeContent');
+        const codeDrawer = document.getElementById('code-drawer');
+        const speedDialMenu = document.getElementById('speedDialMenu');
+
+        function toggleSpeedDial() { speedDialMenu.classList.toggle('open'); }
+        function openSheet(id) { closeAllSheets(); speedDialMenu.classList.remove('open'); document.getElementById(id).classList.add('open'); backdrop.classList.add('active'); if(id==='projectSheet') renderVariableManager(); }
+        function closeAllSheets() { document.querySelectorAll('.bottom-sheet').forEach(s => s.classList.remove('open')); backdrop.classList.remove('active'); speedDialMenu.classList.remove('open'); }
+        function switchTab(btn) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); btn.classList.add('active'); closeAllSheets(); }
+        function toggleGrid() { canvas.classList.toggle('grid-on'); }
+        function toggleCodeDrawer() { codeDrawer.classList.toggle('open'); if(codeDrawer.classList.contains('open')) generatePureHTMLCode(); }
+
+        function addElement(type) {
+            closeAllSheets();
+            createComponent(type, { x: 30, y: 40 });
+            saveHistory();
+            updateUI();
+        }
+
+        function renderVariableManager() {
+            const container = document.getElementById('variable-list-container');
+            container.innerHTML = '';
+            Object.keys(appVariables).forEach(key => {
+                const div = document.createElement('div');
+                div.className = 'var-row';
+                div.innerHTML = `
+                    <input type="text" value="${key}" onchange="renameStateKey('${key}', this.value)"/>
+                    <input type="text" value="${appVariables[key]}" onchange="updateStateValue('${key}', this.value)"/>
+                    <button class="btn-del-var" onclick="deleteStateKey('${key}')">×</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addNewStateVariable() { appVariables["variabel_" + Object.keys(appVariables).length] = "0"; renderVariableManager(); }
+        function renameStateKey(oldKey, newKey) { if(!newKey || appVariables[newKey] !== undefined) return; appVariables[newKey] = appVariables[oldKey]; delete appVariables[oldKey]; renderVariableManager(); }
+        function updateStateValue(key, val) { appVariables[key] = isNaN(val) ? val : Number(val); renderVariableManager(); }
+        function deleteStateKey(key) { delete appVariables[key]; renderVariableManager(); }
+
+        // --- LAYER LEVEL 1: CREATION ENGINE WITH INLINE ACTION GROUP ---
+        function createComponent(type, position, customId) {
+            const id = customId || ++idCounter;
+            const el = document.createElement('div');
+            el.className = `cmp cmp-${type}`;
+            el.dataset.id = id;
+            el.style.left = position.x + 'px';
+            el.style.top = position.y + 'px';
+            el.style.position = 'absolute';
+            el.style.touchAction = 'none';
+
+            const lbl = document.createElement('span');
+            lbl.className = 'cmp-label';
+            lbl.textContent = `${type} #${id}`;
+            el.appendChild(lbl);
+
+            // ============================================================
+            // BARU: KELOMPOK TOMBOL AKSI MELAYANG DI ATAS ELEMEN Kanvas
+            // ============================================================
+            const actionGroup = document.createElement('div');
+            actionGroup.className = 'cmp-actions-group';
+
+            // Tombol Properti (Ikon ⚙️)
+            const btnProp = document.createElement('button');
+            btnProp.className = 'cmp-btn-inline btn-prop';
+            btnProp.textContent = '⚙️';
+            btnProp.onclick = (e) => { 
+                e.stopPropagation(); 
+                selectComponent(id); 
+                openSheet('propSheet'); // Langsung buka bottom sheet properti kustom
+            };
+
+            // Tombol Hapus (Ikon ×)
+            const btnDel = document.createElement('button');
+            btnDel.className = 'cmp-btn-inline btn-delete';
+            btnDel.textContent = '×';
+            btnDel.onclick = (e) => { 
+                e.stopPropagation(); 
+                deleteComponent(id); 
+            };
+
+            actionGroup.appendChild(btnProp);
+            actionGroup.appendChild(btnDel);
+            el.appendChild(actionGroup);
+
+            let props = { 
+                text: 'Objek Baru {{counter}}', bg: '#f1f3f9', color: '#121318', width: 'auto', height: 'auto', 
+                targetVariable: 'none', operation: 'set', expressionValue: '', fallbackAction: 'none', fallbackParam: '' 
+            };
+
+            if (type === 'container') {
+                props = { bg: '#eaedf5', layoutType: 'absolute', flexDirection: 'column', justify: 'flex-start', gap: '8px' };
+                el.style.width = '260px'; el.style.height = '140px'; el.style.backgroundColor = props.bg;
+            } else if (type === 'button') {
+                props.text = 'Tambah Counter'; props.bg = '#5c5cf0'; props.color = '#ffffff';
+                props.targetVariable = 'counter'; props.operation = 'add'; props.expressionValue = '1';
+                props.fallbackAction = 'toast'; props.fallbackParam = 'Nilai bertambah! Sekarang: {{counter}}';
+                el.style.backgroundColor = props.bg; el.style.color = props.color;
+            } else if (type === 'image') {
+                props = { src: '', alt: 'Gambar' };
+                el.innerHTML += `<span class="img-placeholder">🖼️ Gambar</span>`;
+            } else if (type === 'input') {
+                props.text = ''; props.placeholder = 'Ketik nama...';
+                props.targetVariable = 'namaUser';
+                el.style.backgroundColor = '#ffffff';
+                el.innerHTML += `<span>${props.placeholder}</span>`;
+            }
+
+            if (type === 'text' || type === 'button') {
+                const innerTxt = document.createElement('span');
+                innerTxt.className = 'inner-text-node';
+                innerTxt.textContent = props.text;
+                el.appendChild(innerTxt);
+            }
+
+            el.addEventListener('pointerdown', (e) => {
+                // Jangan picu geser kanvas jika menekan tombol aksi internal
+                if (isPreviewMode || e.target.closest('.cmp-actions-group')) return; 
+                e.stopPropagation();
+                el.setPointerCapture(e.pointerId); 
+                selectComponent(id);
+                startDragElement(e, id);
+            });
+
+            canvas.appendChild(el);
+            const comp = { id, type, el, props, parentId: null, x: position.x, y: position.y };
+            components.push(comp);
+            selectComponent(id);
+            return comp;
+        }
+
+        function selectComponent(id) {
+            document.querySelectorAll('.cmp.selected').forEach(el => el.classList.remove('selected'));
+            selectedId = id;
+            const comp = components.find(c => c.id === id);
+            if (comp) {
+                comp.el.classList.add('selected');
+                renderInspectorPanel(comp);
+            }
+            updateUI();
+        }
+
+        function renderInspectorPanel(comp) {
+            let varOptions = `<option value="none">Tidak Mengubah Variabel</option>`;
+            Object.keys(appVariables).forEach(k => { varOptions += `<option value="${k}" ${comp.props.targetVariable === k ? 'selected':''}>${k}</option>`; });
+
+            let html = `
+                <div class="prop-group"><label>🔖 Identitas Objek</label><input value="${comp.type.toUpperCase()} (#${comp.id})" disabled style="opacity:0.6;" /></div>
+                <div class="prop-group">
+                    <label>📐 Ukuran Custom (Width & Height)</label>
+                    <div class="row">
+                        <input type="text" id="p-width" value="${comp.props.width || comp.el.offsetWidth + 'px'}"/>
+                        <input type="text" id="p-height" value="${comp.props.height || comp.el.offsetHeight + 'px'}"/>
+                    </div>
+                </div>
+            `;
+
+            if (comp.type === 'text' || comp.type === 'button') { html += `<div class="prop-group"><label>📝 Nilai Teks (Mendukung {{variabel}})</label><input type="text" id="p-text" value="${comp.props.text || ''}"/></div>`; }
+            if (comp.type === 'input') { html += `<div class="prop-group"><label>✏️ Keterangan Hint Placeholder</label><input type="text" id="p-placeholder" value="${comp.props.placeholder || ''}"/></div>`; }
+            if (comp.type === 'image') { html += `<div class="prop-group"><label>🖼️ URL Source Gambar</label><input type="text" id="p-src" value="${comp.props.src || ''}"/></div>`; }
+
+            if (comp.type === 'container') {
+                html += `
+                    <div class="prop-group">
+                        <label>🏗️ Mode Pengaturan Tata Letak</label>
+                        <select id="p-layout">
+                            <option value="absolute" ${comp.props.layoutType === 'absolute'?'selected':''}>Absolut (Manual Drag)</option>
+                            <option value="flex" ${comp.props.layoutType === 'flex'?'selected':''}>Flexbox (Otomatis Rata)</option>
+                        </select>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div style="background:#121318; padding:12px; border-radius:12px; border:1px solid var(--md-primary-container); margin-top:8px;">
+                    <label style="font-weight:bold; color:var(--md-primary); display:block; margin-bottom:6px;">⚡ Eksekusi Fungsi Berseri (Level 4)</label>
+                    <div class="prop-group">
+                        <label><small>1. Target Variabel yang Diubah</small></label>
+                        <select id="p-targetVar">${varOptions}</select>
+                    </div>
+                    <div class="prop-group" id="operation-block" style="display: ${comp.props.targetVariable !== 'none'?'block':'none'}">
+                        <label><small>2. Operasi Matematika/Data</small></label>
+                        <select id="p-operation">
+                            <option value="set" ${comp.props.operation==='set'?'selected':''}>SET (Isi/Timpa Nilai)</option>
+                            <option value="add" ${comp.props.operation==='add'?'selected':''}>ADD (Tambah Nilai)</option>
+                        </select>
+                        <label style="margin-top:4px;"><small>Nilai Ekspresi Pengubah</small></label>
+                        <input type="text" id="p-exprValue" value="${comp.props.expressionValue || ''}" />
+                    </div>
+                    <div class="prop-group" style="margin-top:6px; border-top:1px solid rgba(255,255,255,0.08); padding-top:6px;">
+                        <label><small>3. Aksi Feedback Output Native</small></label>
+                        <select id="p-fallbackAction">
+                            <option value="none" ${comp.props.fallbackAction==='none'?'selected':''}>Tidak ada respon</option>
+                            <option value="toast" ${comp.props.fallbackAction==='toast'?'selected':''}>Tampilkan Android Toast</option>
+                            <option value="popup" ${comp.props.fallbackAction==='popup'?'selected':''}>Tampilkan Alert Box</option>
+                        </select>
+                        <textarea style="margin-top:4px;" id="p-fallbackParam">${comp.props.fallbackParam || ''}</textarea>
+                    </div>
+                </div>
+            `;
+
+            propContent.innerHTML = html;
+            injectPropertyListeners(comp);
+        }
+
+        function injectPropertyListeners(comp) {
+            const bind = (id, field, cb) => { document.getElementById(id)?.addEventListener('input', (e) => { comp.props[field] = e.target.value; cb(e.target.value); }); };
+            bind('p-text', 'text', (v) => { const n = comp.el.querySelector('.inner-text-node'); if(n) n.textContent = v; });
+            bind('p-placeholder', 'placeholder', (v) => { const n = comp.el.querySelector('span'); if(n) n.textContent = v; });
+            bind('p-width', 'width', (v) => comp.el.style.width = v);
+            bind('p-height', 'height', (v) => comp.el.style.height = v);
+            bind('p-operation', 'operation', () => {});
+            bind('p-exprValue', 'expressionValue', () => {});
+            bind('p-fallbackAction', 'fallbackAction', () => {});
+            bind('p-fallbackParam', 'fallbackParam', () => {});
+
+            document.getElementById('p-targetVar')?.addEventListener('change', (e) => {
+                comp.props.targetVariable = e.target.value;
+                document.getElementById('operation-block').style.display = e.target.value !== 'none' ? 'block' : 'none';
+                saveHistory();
+            });
+
+            document.getElementById('p-layout')?.addEventListener('change', (e) => {
+                comp.props.layoutType = e.target.value;
+                if(e.target.value === 'flex') {
+                    comp.el.classList.add('flex-layout');
+                    components.forEach(c => { if(c.parentId === comp.id) c.el.style.position = 'relative'; });
+                } else {
+                    comp.el.classList.remove('flex-layout');
+                    components.forEach(c => { if(c.parentId === comp.id) { c.el.style.position = 'absolute'; c.el.style.left='10px'; c.el.style.top='10px'; } });
+                }
+                saveHistory();
+            });
+        }
+
+        function startDragElement(e, id) {
+            const comp = components.find(c => c.id === id);
+            if (!comp || comp.el.style.position === 'relative') return;
+
+            const rect = canvas.getBoundingClientRect();
+            let startX = e.clientX - rect.left - comp.x;
+            let startY = e.clientY - rect.top - comp.y;
+
+            function dragging(ev) {
+                let x = ev.clientX - rect.left - startX;
+                let y = ev.clientY - rect.top - startY;
+                x = Math.max(0, Math.min(x, rect.width - comp.el.offsetWidth));
+                y = Math.max(0, Math.min(y, rect.height - comp.el.offsetHeight));
+                x = Math.round(x / GRID_SIZE) * GRID_SIZE;
+                y = Math.round(y / GRID_SIZE) * GRID_SIZE;
+
+                comp.el.style.left = x + 'px';
+                comp.el.style.top = y + 'px';
+                comp.x = x; comp.y = y;
+
+                document.querySelectorAll('.cmp-container').forEach(box => {
+                    if (parseInt(box.dataset.id) === id) return;
+                    const bBox = box.getBoundingClientRect();
+                    if (ev.clientX > bBox.left && ev.clientX < bBox.right && ev.clientY > bBox.top && ev.clientY < bBox.bottom) {
+                        box.appendChild(comp.el);
+                        comp.parentId = parseInt(box.dataset.id);
+                        if (box.classList.contains('flex-layout')) comp.el.style.position = 'relative';
+                    }
+                });
+            }
+
+            function dragEnd(ev) {
+                comp.el.releasePointerCapture(ev.pointerId);
+                document.removeEventListener('pointermove', dragging);
+                document.removeEventListener('pointerup', dragEnd);
+                saveHistory();
+            }
+            document.addEventListener('pointermove', dragging);
+            document.addEventListener('pointerup', dragEnd);
+        }
+
+        function deleteComponent(id) {
+            const idx = components.findIndex(c => c.id === id);
+            if(idx !== -1) { components[idx].el.remove(); components.splice(idx, 1); selectedId = null; saveHistory(); updateUI(); }
+        }
+
+        function saveHistory() {
+            if (historyIndex < history.length - 1) history = history.slice(0, historyIndex + 1);
+            history.push(components.map(c => ({ id: c.id, type: c.type, x: c.x, y: c.y, parentId: c.parentId, props: JSON.parse(JSON.stringify(c.props)), rawHtml: c.el.innerHTML, rawStyle: c.el.style.cssText })));
+            historyIndex = history.length - 1;
+        }
+        function undoAction() { if (historyIndex > 0) loadHistoryState(--historyIndex); }
+        function redoAction() { if (historyIndex < history.length - 1) loadHistoryState(++historyIndex); }
+        
+        function loadHistoryState(idx) {
+            canvas.querySelectorAll('.cmp').forEach(n => n.remove()); components = [];
+            history[idx].forEach(d => {
+                const el = document.createElement('div'); el.className = `cmp cmp-${d.type}`; el.dataset.id = d.id; el.style.cssText = d.rawStyle; el.innerHTML = d.rawHtml; el.style.touchAction = 'none';
+                el.addEventListener('pointerdown', (e) => { 
+                    if (isPreviewMode || e.target.closest('.cmp-actions-group')) return; 
+                    e.stopPropagation(); el.setPointerCapture(e.pointerId); selectComponent(d.id); startDragElement(e, d.id); 
+                });
+                
+                // Kembalikan listener click tombol inline setelah restore undo/redo
+                const btnP = el.querySelector('.btn-prop');
+                if(btnP) btnP.onclick = (e) => { e.stopPropagation(); selectComponent(d.id); openSheet('propSheet'); };
+                const btnD = el.querySelector('.btn-delete');
+                if(btnD) btnD.onclick = (e) => { e.stopPropagation(); deleteComponent(d.id); };
+
+                const targetNode = d.parentId ? canvas.querySelector(`[data-id="${d.parentId}"]`) : canvas;
+                (targetNode || canvas).appendChild(el);
+                components.push({ id: d.id, type: d.type, el, props: d.props, parentId: d.parentId, x: d.x, y: d.y });
+            });
+            updateUI();
+        }
+
+        function togglePreview() { isPreviewMode = true; previewOverlay.classList.add('active'); runtimeState = JSON.parse(JSON.stringify(appVariables)); executeRuntimeRender(); }
+        
+        function executeRuntimeRender() {
+            previewContent.innerHTML = '';
+            const buildClone = canvas.cloneNode(true);
+            buildClone.querySelectorAll('.cmp-actions-group, .cmp-label, .canvas-placeholder').forEach(n => n.remove());
+
+            components.forEach(c => {
+                const liveNode = buildClone.querySelector(`[data-id="${c.id}"]`);
+                if(!liveNode) return;
+
+                if (c.type === 'text' || c.type === 'button') {
+                    const txtSpan = liveNode.querySelector('.inner-text-node');
+                    if (txtSpan) txtSpan.textContent = parseExpressionBinding(c.props.text);
+                }
+                if (c.type === 'input') {
+                    liveNode.innerHTML = `<input type="text" style="width:100%; border:none; outline:none;" placeholder="${c.props.placeholder}" value="${runtimeState[c.props.targetVariable] || ''}"/>`;
+                    liveNode.querySelector('input').oninput = (e) => { runtimeState[c.props.targetVariable] = e.target.value; executeRuntimeRender(); };
+                }
+                if (c.type === 'button') {
+                    liveNode.style.cursor = 'pointer';
+                    liveNode.onclick = (e) => {
+                        e.stopPropagation();
+                        if (c.props.targetVariable !== 'none') {
+                            const key = c.props.targetVariable;
+                            let delta = parseExpressionBinding(c.props.expressionValue);
+                            if (!isNaN(delta) && delta !== '') delta = Number(delta);
+                            if (c.props.operation === 'set') runtimeState[key] = delta;
+                            else if (c.props.operation === 'add') runtimeState[key] = (Number(runtimeState[key]) || 0) + (Number(delta) || 0);
+                        }
+                        if (c.props.fallbackAction !== 'none') {
+                            const parsedMsg = parseExpressionBinding(c.props.fallbackParam);
+                            if (typeof app !== 'undefined') {
+                                if (c.props.fallbackAction === 'popup') app.Alert(parsedMsg, "IDE Notifikasi");
+                                else app.ShowPopup(parsedMsg);
+                            } else { alert(`[Android API Simulator] ${parsedMsg}`); }
+                        }
+                        executeRuntimeRender();
+                    };
+                }
+            });
+            previewContent.appendChild(buildClone);
+        }
+
+        function parseExpressionBinding(str) {
+            if (!str) return '';
+            return str.replace(/\{\{(.*?)\}\}/g, (match, key) => { const tk = key.trim(); return runtimeState[tk] !== undefined ? runtimeState[tk] : (appVariables[tk] !== undefined ? appVariables[tk] : match); });
+        }
+
+        function closePreview() { isPreviewMode = false; previewOverlay.classList.remove('active'); }
+
+        async function generatePureHTMLCode() {
+            togglePreview(); const compiledHtml = previewContent.innerHTML; closePreview();
+            const outputDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>App Export</title><style>body{margin:0;padding:16px;font-family:sans-serif;}.cmp{position:absolute;box-sizing:border-box;border-radius:12px;}.cmp-button{background:#5c5cf0;color:white;border:none;font-weight:600;padding:10px 20px;text-align:center;}.cmp-input{background:white;border:2px solid #ccd;padding:8px 12px;}.cmp-container{background:#eaedf5;padding:16px;border-radius:16px;}.flex-layout{display:flex!important;}.flex-layout .cmp{position:relative!important;left:auto!important;top:auto!important;margin-bottom:6px;}</style></head><body>${compiledHtml}</body></html>`;
+            codeContent.textContent = outputDoc;
+            try { await navigator.clipboard.writeText(outputDoc); if(typeof app !== 'undefined') app.ShowPopup("Kode disalin!"); } catch(e) {}
+        }
+
+        function exportProjectJSON() {
+            const dataStr = JSON.stringify({ state: appVariables, components: components.map(c => ({ id:c.id, type:c.type, x:c.x, y:c.y, parentId:c.parentId, props:c.props })) }, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `project.json`; a.click();
+        }
+
+        function triggerImport() { document.getElementById('fileLoader').click(); }
+        function handleFileImport(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const r = new FileReader();
+            r.onload = (ev) => {
+                const project = JSON.parse(ev.target.result); appVariables = project.state || { counter: 0 };
+                canvas.querySelectorAll('.cmp').forEach(n => n.remove()); components = []; idCounter = 0;
+                project.components.forEach(d => {
+                    const c = createComponent(d.type, { x: d.x, y: d.y }, d.id); c.parentId = d.parentId; c.props = d.props;
+                    if(d.parentId) { const p = canvas.querySelector(`[data-id="${d.parentId}"]`); if(p) p.appendChild(c.el); }
+                    if(d.id > idCounter) idCounter = d.id;
+                });
+                saveHistory(); updateUI();
+            };
+            r.readAsText(file);
+        }
+
+        function updateLayerPanel() {
+            let html = '';
+            components.forEach(c => { html += `<div style="padding:14px; border-bottom:1px solid rgba(255,255,255,0.05); color:${c.id===selectedId?'var(--md-primary)':''}" onclick="selectComponent(${c.id}); closeAllSheets();">📦 ${c.type.toUpperCase()} (#${c.id})</div>`; });
+            layerList.innerHTML = html || '<small style="color:var(--md-outline); padding:16px; display:block;">Kosong</small>';
+        }
+
+        function updateUI() { placeholder.style.display = components.length === 0 ? 'flex' : 'none'; updateLayerPanel(); }
+        
+        function onAppStart() { if(typeof app !== 'undefined') app.ShowPopup("IDE Inline Properti Siap!"); }
+        window.app = window.app || { Start: onAppStart, ShowPopup: (m) => console.log(m) };
+    </script>
+<script src="sprint1_patch.js"></script>
+<script src="sprint2_patch.js"></script>
+<script src="sprint3_patch.js"></script>
+</body>
+</html>

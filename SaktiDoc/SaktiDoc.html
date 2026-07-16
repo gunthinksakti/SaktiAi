@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>SaktiDoc Ultimate - 200+ Template Surat</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+    <script src="SaktiDoc.js"></script>
+</head>
+<body>
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-loading">Memuat SaktiDoc Ultimate...</div>
+    </div>
+    
+    <div class="top-app-bar">
+        <h1 class="app-bar-title">SaktiDoc Ultimate</h1>
+        <span class="badge-count" id="totalCount">0 Surat</span>
+    </div>
+    
+    <div class="container">
+        <div id="dashboardView">
+            <div id="tabContentTemplates">
+                <div class="info-card">
+                    <div>
+                        <div class="info-title">Mesin Cetak PDF</div>
+                        <div class="info-value">Ultimate Edition v3.0</div>
+                    </div>
+                    <div class="info-badge">✓ Offline</div>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-label">📂 Kategori Surat</div>
+                    <select id="kategoriDropdown" class="kategori-dropdown" onchange="pilihKategoriDropdown(this.value)">
+                        <option value="all">📋 Semua Kategori</option>
+                        <option value="sk">📜 Surat Keterangan</option>
+                        <option value="resmi">🏛️ Surat Resmi</option>
+                        <option value="perusahaan">🏢 Perusahaan/Bisnis</option>
+                        <option value="sekolah">🎓 Pendidikan/Sekolah</option>
+                        <option value="komunitas">👥 Komunitas/Sosial</option>
+                        <option value="hukum">⚖️ Hukum/Perdata</option>
+                        <option value="desa">🏘️ Desa/Kelurahan</option>
+                        <option value="agama">🕌 Keagamaan</option>
+                        <option value="kesehatan">🏥 Kesehatan</option>
+                        <option value="pemerintah">🏛️ Pemerintahan</option>
+                        <option value="keuangan">💰 Keuangan/Bank</option>
+                    </select>
+                </div>
+                
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchBox" class="search-bar" onkeyup="filterTemplate()" placeholder="Cari template surat...">
+                </div>
+                
+                <div class="section-title">
+                    <span>📋 Daftar Template</span>
+                    <span id="resultCount"></span>
+                </div>
+                <div id="templateGrid" class="menu-grid"></div>
+                
+                <button class="btn-donasi" onclick="isiSaldo()" style="margin-top:16px;">
+                    <span class="btn-donasi-icon">💰</span> Isi Saldo & Export PDF
+                </button>
+            </div>
+            
+            <div id="tabContentRiwayat" style="display:none;">
+                <div class="section-title">ℹ️ Informasi Aplikasi</div>
+                <div class="empty-state" id="infoContainer"></div>
+            </div>
+        </div>
+        
+        <div id="formView" class="form-page"></div>
+    </div>
+    
+    <div id="bottomNav" class="bottom-nav">
+        <div id="navTemplates" class="nav-item nav-item-active" onclick="gantiTab('templates')">
+            <span class="nav-icon">📋</span>
+            <span class="nav-text">Template</span>
+        </div>
+        <div id="navRiwayat" class="nav-item" onclick="gantiTab('riwayat')">
+            <span class="nav-icon">ℹ️</span>
+            <span class="nav-text">Info</span>
+        </div>
+    </div>
+    
+    <script>
+        window.addEventListener('load', function() {
+            if (typeof OnStart === 'function') {
+                OnStart();
+            } else {
+                setTimeout(function() {
+                    if (typeof OnStart === 'function') OnStart();
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

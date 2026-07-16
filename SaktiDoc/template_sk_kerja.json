@@ -1,0 +1,21 @@
+{
+  "id": "sk_kerja",
+  "nama": "SURAT KETERANGAN KERJA",
+  "icon": "💼",
+  "templates": [
+    {
+      "nama_versi": "Versi Standar (Indonesia)",
+      "ornamen": false,
+      "margin_atas": 30,
+      "margin_kiri": 25,
+      "konten": "=========================================\n        SURAT KETERANGAN KERJA\n=========================================\n\nYang bertanda tangan di bawah ini :\n\nNama\t\t: [Nama Lengkap]\nJabatan\t\t: [Jabatan]\nPerusahaan\t: [Nama Perusahaan]\nAlamat\t\t: [Alamat Perusahaan]\n\nMenerangkan dengan sesungguhnya bahwa :\n\nNama\t\t: [Nama Karyawan]\nTempat/Tgl Lahir\t: [Tempat Lahir], [Tanggal Lahir]\nNIK\t\t: [NIK]\nJabatan\t\t: [Jabatan Karyawan]\nDepartemen\t: [Departemen]\nAlamat\t\t: [Alamat Karyawan]\n\nAdalah benar karyawan aktif di perusahaan kami sejak [Tanggal Mulai] hingga saat ini.\n\nSurat keterangan ini dibuat untuk keperluan [Keperluan].\n\nDemikian surat keterangan ini dibuat dengan sebenar-benarnya agar dapat dipergunakan sebagaimana mestinya.\n\n[Kota], [Tanggal]\n\nHormat kami,\n\n\n\n[Nama Pimpinan]\n[Nama Perusahaan]\n\nStempel Perusahaan"
+    },
+    {
+      "nama_versi": "Versi Formal (Indonesia)",
+      "ornamen": true,
+      "margin_atas": 35,
+      "margin_kiri": 30,
+      "konten": "=========================================\n        SURAT KETERANGAN KERJA\n             NOMOR: [No Surat]/SK/[Bulan]/[Tahun]\n=========================================\n\nYang bertanda tangan di bawah ini, [Nama Pimpinan], menerangkan bahwa:\n\nNama Lengkap\t: [Nama Karyawan]\nTempat, Tanggal Lahir\t: [Tempat Lahir], [Tanggal Lahir]\nJenis Kelamin\t: [Jenis Kelamin]\nAgama\t\t: [Agama]\nStatus\t\t: [Status]\nNIK\t\t: [NIK]\nNPWP\t\t: [NPWP]\nAlamat\t\t: [Alamat Karyawan]\n\nBahwa yang bersangkutan adalah benar-benar [Status Karyawan] pada perusahaan kami, yang menjabat sebagai [Jabatan] di [Departemen], terhitung sejak tanggal [Tanggal Mulai] sampai dengan saat ini.\n\nSelama bekerja di perusahaan kami, yang bersangkutan memiliki catatan sebagai berikut:\n1. Kehadiran\t: [Kehadiran]\n2. Kedisiplinan\t: [Kedisiplinan]\n3. Prestasi Kerja\t: [Prestasi]\n\nSurat keterangan ini dibuat berdasarkan data yang ada di perusahaan kami, untuk memenuhi persyaratan [Keperluan].\n\nDemikian surat keterangan ini kami buat dengan sebenarnya dan tanpa paksaan dari pihak manapun.\n\n[Kota], [Tanggal]\n\n[Nama Pimpinan],\n\n\n\n[Nama Pimpinan]\n[Nama Perusahaan]\n\nCap dan Tanda Tangan"
+    }
+  ]
+}

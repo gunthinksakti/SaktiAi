@@ -1,0 +1,18 @@
+0 verbose cli /usr/bin/node /usr/bin/npm
+1 info using npm@10.9.1
+2 info using node@v22.23.0
+3 silly config load:file:/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/root/.npmrc
+5 silly config load:file:/etc/npmrc
+6 verbose title npm ls @google/clasp
+7 verbose argv "ls" "--global" "@google/clasp"
+8 verbose logfile logs-max:10 dir:/root/.npm/_logs/2026-07-10T23_22_53_065Z-
+9 verbose logfile /root/.npm/_logs/2026-07-10T23_22_53_065Z-debug-0.log
+10 silly packumentCache heap:1531183104 maxSize:382795776 maxEntrySize:191397888
+11 silly logfile done cleaning log files
+12 verbose cwd /root
+13 verbose os Linux 3.18.140-SIMPLE-KERNEL_V1.0
+14 verbose node v22.23.0
+15 verbose npm  v10.9.1
+16 verbose exit 0
+17 info ok

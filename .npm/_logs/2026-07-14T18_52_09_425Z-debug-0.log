@@ -1,0 +1,58 @@
+0 verbose cli /usr/bin/node /usr/bin/npm
+1 info using npm@10.9.1
+2 info using node@v22.23.0
+3 silly config load:file:/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/root/uibuilder/.npmrc
+5 silly config load:file:/root/.npmrc
+6 silly config load:file:/etc/npmrc
+7 verbose title npm install jsdom
+8 verbose argv "install" "jsdom" "--no-bin-links" "--no-audit" "--no-fund"
+9 verbose logfile logs-max:10 dir:/root/.npm/_logs/2026-07-14T18_52_09_425Z-
+10 verbose logfile /root/.npm/_logs/2026-07-14T18_52_09_425Z-debug-0.log
+11 silly logfile start cleaning logs, removing 1 files
+12 silly packumentCache heap:1531183104 maxSize:382795776 maxEntrySize:191397888
+13 silly logfile done cleaning log files
+14 silly idealTree buildDeps
+15 silly fetch manifest jsdom@*
+16 silly packumentCache full:https://registry.npmjs.org/jsdom cache-miss
+17 http cache https://registry.npmjs.org/jsdom 93ms (cache hit)
+18 silly packumentCache full:https://registry.npmjs.org/jsdom set size:1064917 disposed:false
+19 silly fetch manifest canvas@^3.0.0
+20 silly packumentCache full:https://registry.npmjs.org/canvas cache-miss
+21 http cache https://registry.npmjs.org/canvas 27ms (cache hit)
+22 silly packumentCache full:https://registry.npmjs.org/canvas set size:372046 disposed:false
+23 silly placeDep ROOT jsdom@29.1.1 REPLACE for: uibuilder@1.0.0 want: *
+24 silly reify mark retired [ '/root/uibuilder/node_modules/jsdom' ]
+25 silly reify mark retired [
+25 silly reify   '/root/uibuilder/node_modules/tldts',
+25 silly reify   '/root/uibuilder/node_modules/.bin/tldts'
+25 silly reify ]
+26 silly reify mark retired [
+26 silly reify   '/root/uibuilder/node_modules/@bramus/specificity',
+26 silly reify   '/root/uibuilder/node_modules/.bin/specificity'
+26 silly reify ]
+27 silly reify moves {
+27 silly reify   '/root/uibuilder/node_modules/jsdom': '/root/uibuilder/node_modules/.jsdom-vbEIYwW3',
+27 silly reify   '/root/uibuilder/node_modules/tldts': '/root/uibuilder/node_modules/.tldts-ksK1rMho',
+27 silly reify   '/root/uibuilder/node_modules/.bin/tldts': '/root/uibuilder/node_modules/.bin/.tldts-Fy7fGS2H',
+27 silly reify   '/root/uibuilder/node_modules/@bramus/specificity': '/root/uibuilder/node_modules/@bramus/.specificity-t5yCztRY',
+27 silly reify   '/root/uibuilder/node_modules/.bin/specificity': '/root/uibuilder/node_modules/.bin/.specificity-ZPPECtSa'
+27 silly reify }
+28 silly packumentCache corgi:https://registry.npmjs.org/@bramus%2fspecificity cache-miss
+29 http cache jsdom@https://registry.npmjs.org/jsdom/-/jsdom-29.1.1.tgz 0ms (cache hit)
+30 silly packumentCache corgi:https://registry.npmjs.org/tldts cache-miss
+31 http cache https://registry.npmjs.org/@bramus%2fspecificity 369ms (cache hit)
+32 silly packumentCache corgi:https://registry.npmjs.org/@bramus%2fspecificity set size:38627 disposed:false
+33 http cache https://registry.npmjs.org/tldts 394ms (cache hit)
+34 silly packumentCache corgi:https://registry.npmjs.org/tldts set size:1509212 disposed:false
+35 http cache https://registry.npmjs.org/@bramus/specificity/-/specificity-2.4.2.tgz 130ms (cache hit)
+36 http cache https://registry.npmjs.org/tldts/-/tldts-7.4.8.tgz 149ms (cache hit)
+37 silly CHANGE node_modules/@bramus/specificity
+38 silly CHANGE node_modules/tldts
+39 silly CHANGE node_modules/jsdom
+40 verbose cwd /root/uibuilder
+41 verbose os Linux 3.18.140-SIMPLE-KERNEL_V1.0
+42 verbose node v22.23.0
+43 verbose npm  v10.9.1
+44 verbose exit 0
+45 info ok
